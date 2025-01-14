@@ -4,11 +4,10 @@ import { MatIconButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
-  selector: 'lib-selectable-tree',
-  standalone: true,
-  imports: [NgTemplateOutlet, NgStyle, MatIconButton, MatCheckbox],
-  templateUrl: './selectable-tree.component.html',
-  styleUrls: ['./selectable-tree.component.scss'],
+    selector: 'lib-selectable-tree',
+    imports: [NgTemplateOutlet, NgStyle, MatIconButton, MatCheckbox],
+    templateUrl: './selectable-tree.component.html',
+    styleUrls: ['./selectable-tree.component.scss']
 })
 export class SelectableTreeComponent  implements OnInit {
 
