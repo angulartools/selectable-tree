@@ -1,4 +1,4 @@
-@echo on
+@echo off
 REM 1. Excluir node_modules e package-lock.json, se existirem
 if exist node_modules (
     echo Excluindo node_modules...
@@ -17,9 +17,9 @@ git push
 
 REM 3. Executar npm i e ng build
 echo Rodando npm i...
-npm i --force
+call npm i --force
 echo rodando ng build...
-ng build
+call npx ng build
 
 REM 4. Pega o nome da pasta atual
 for %%I in ("%cd%") do set "CUR_DIR=%%~nxI"
