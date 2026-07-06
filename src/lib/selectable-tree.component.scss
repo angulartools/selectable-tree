@@ -1,0 +1,44 @@
+.tree-row {
+	display: flex;
+	align-items: center;
+	gap: 4px; // controla proximidade real entre seta e checkbox
+	min-height: 36px; // garante alinhamento com MDC checkbox
+}
+
+/* Área da seta */
+.tree-toggle {
+	width: 28px;
+	flex-shrink: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Ícone */
+.tree-icon {
+	font-size: 16px;
+}
+
+/* Checkbox (MDC safe override mínimo) */
+.tree-checkbox {
+	display: flex;
+	align-items: center;
+}
+
+/* garante alinhamento interno do MDC sem quebrar layout */
+::ng-deep .tree-checkbox .mdc-form-field {
+	align-items: center;
+}
+
+/* label mais consistente visualmente */
+.tree-label {
+	font-weight: 400;
+}
+
+/* REMOVE o hack de altura global (IMPORTANTE) */
+/*
+::ng-deep .mat-mdc-checkbox {
+  height: 36px;
+}
+*/

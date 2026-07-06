@@ -1,92 +1,82 @@
-import { NgStyle, NgTemplateOutlet } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { MatIconButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 
+export interface TreeItem {
+  id: number;
+  level?: number;
+  name: string;
+  open?: boolean;
+  selected?: boolean;
+  indeterminate?: boolean;
+  readonly?: boolean;
+  children?: TreeItem[];
+}
+
 @Component({
-    selector: 'lib-selectable-tree',
-    imports: [NgTemplateOutlet, NgStyle, MatIconButton, MatCheckbox],
-    templateUrl: './selectable-tree.component.html',
-    styleUrls: ['./selectable-tree.component.scss']
+  selector: 'lib-selectable-tree',
+  imports: [NgTemplateOutlet, MatIconButton, MatCheckbox],
+  templateUrl: './selectable-tree.component.html',
+  styleUrls: ['./selectable-tree.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SelectableTreeComponent  implements OnInit {
 
-  @Input('items') set _items(value) {
-    this.items = value;
-    //console.log(value)
-  };
+export class SelectableTreeComponent {
 
-  items = [
-    {id: 1, level: 0, name: 'Teste 1', open: false, selected: false, children: [{id: 21, level: 1, name: 'Teste 1.2'}]},
-    {id: 2, level: 0, name: 'Teste 2', selected: false},
-  ];
+  items = input<TreeItem[]>([]);
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
-  updateItem(lista, item) {
-    for(let i=0; i<lista.length; i++) {
-      if (lista[i].id === item.id && lista[i].name === item.name) {
-        lista[i] = item;
-        return;
-      }
-
-      if (lista[i].children !== undefined && lista[i].children !== null && lista[i].children.length > 0) {
-        this.updateItem(lista[i].children, item);
-      }
-    }
-  }
-
-  checkItem(lista, item, value) {
-    for(let i=0; i<lista.length; i++) {
-      if (lista[i].id === item.id && lista[i].name === item.name) {
-        lista[i].selected = value;
-        if (lista[i].children !== undefined && lista[i].children !== null && lista[i].children.length > 0) {
-          this.checkChildrenItem(lista[i].children, value);
-        }
-      } else {
-        if (lista[i].children !== undefined && lista[i].children !== null && lista[i].children.length > 0) {
-          this.checkItem(lista[i].children, item, value);
-        }
-      }
-      if (lista[i].children.length > 0) {
-        const allSelected = lista[i].children.every(t=> t.selected === true);
-        lista[i].selected = allSelected;
-        lista[i].indeterminate = allSelected === false && lista[i].children.some(t=> t.selected === true);
-      }
-      //console.log(lista[i].name, lista[i].children.length > 0 && lista[i].children.every(t=> t.selected === true))
-    }
-  }
-
-  checkChildrenItem(lista, value) {
-    for(let i=0; i<lista.length; i++) {
-      lista[i].selected = value;
-
-      if (lista[i].children !== undefined && lista[i].children !== null && lista[i].children.length > 0) {
-        this.checkChildrenItem(lista[i].children, value);
-      }
-
-    }
-  }
-
-  openToggle(item) {
+  openToggle(item: TreeItem) {
     item.open = true;
-    this.updateItem(this.items, item);
-    this.items = Object.assign([], this.items);
   }
 
-  closeToggle(item) {
+  closeToggle(item: TreeItem) {
     item.open = false;
-    this.updateItem(this.items, item);
-    this.items = Object.assign([], this.items);
   }
 
-  toggle(item, value){
+  toggle(item: TreeItem, value: boolean) {
     item.selected = value;
-    this.checkItem(this.items, item, value);
-    this.items = Object.assign([], this.items, true);
+    this.updateChildren(item, value);
+    this.updateAllStates(this.items());
   }
 
+  private updateChildren(item: TreeItem, value: boolean) {
+
+    item.selected = value;
+    item.indeterminate = false;
+
+    item.children?.forEach(child => {
+      this.updateChildren(child, value);
+    });
+
+  }
+
+  private updateAllStates(lista: TreeItem[]) {
+    for (const item of lista) {
+      if (item.children?.length) {
+        this.updateAllStates(item.children);
+
+        const children = item.children;
+        const hasSelectedOrIndeterminate = children.some(x => x.selected || x.indeterminate);
+        const allSelected = children.every(x => x.selected);
+
+        const nameLower = item.name.toLowerCase();
+        const isEmpresaNode = !nameLower.includes('site') && !nameLower.includes('eqp') && !nameLower.includes('equipamento');
+
+        if (isEmpresaNode) {
+          const hasUncheckedChild = children.some(x => !x.selected && !x.indeterminate);
+          if (hasUncheckedChild) {
+            item.selected = false;
+            item.indeterminate = hasSelectedOrIndeterminate;
+          } else {
+            item.selected = hasSelectedOrIndeterminate;
+            item.indeterminate = false;
+          }
+        } else {
+          item.selected = allSelected;
+          item.indeterminate = hasSelectedOrIndeterminate && !allSelected;
+        }
+      }
+    }
+  }
 }

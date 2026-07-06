@@ -1,42 +1,69 @@
-@for (item of items; track item.id) {
-  <div>
-    <ng-container *ngTemplateOutlet="itemTemplate; context{item: item}"></ng-container>
-  </div>
+@for (item of items(); track item.id) {
+  <ng-container
+    [ngTemplateOutlet]="itemTemplate"
+    [ngTemplateOutletContext]="{ item }">
+  </ng-container>
 }
 
 <ng-template #itemTemplate let-item="item">
-  <div class="d-inline-flex">
-    <div [ngStyle]="{'margin-left.px': item?.level*16}" style="min-width: 46px;">
-      @if (item?.children?.length > 0 && !item?.open) {
-        <button type="button" class="ml-0 mr-1" mat-icon-button color="accent" (click)="openToggle(item)">
-          <i style="font-size: 16px;" class="fal fa-chevron-right"></i>
+
+  <div class="tree-row">
+
+    <!-- INDENTAÇÃO + TOGGLE -->
+    <div
+      class="tree-toggle"
+      [style.margin-left.px]="(item.level ?? 0) * 16">
+
+      @if (item.children?.length && !item.open) {
+        <button
+          type="button"
+          mat-icon-button
+          color="accent"
+          (click)="openToggle(item)">
+
+          <i class="fal fa-chevron-right tree-icon"></i>
         </button>
       }
-      @if (item?.children?.length > 0 && item?.open) {
-        <button type="button" class="ml-0 mr-1" mat-icon-button color="accent" (click)="closeToggle(item)">
-          <i style="font-size: 16px;" class="fal fa-chevron-down"></i>
+
+      @if (item.children?.length && item.open) {
+        <button
+          type="button"
+          mat-icon-button
+          color="accent"
+          (click)="closeToggle(item)">
+
+          <i class="fal fa-chevron-down tree-icon"></i>
         </button>
       }
+
     </div>
-    <mat-checkbox style="margin-top: 10px;"
+
+    <!-- CHECKBOX -->
+    <mat-checkbox
+      class="tree-checkbox"
       color="primary"
-      (click)="$event.stopPropagation()"
-      (change)="$event ? toggle(item, $event.checked) : null"
       [disabled]="item.readonly"
       [checked]="item.selected"
       [indeterminate]="item.indeterminate"
-      >
-      <span style="font-weight: 400;">{{item?.name}}</span>
+      (click)="$event.stopPropagation()"
+      (change)="toggle(item, $event.checked)">
+
+      <span class="tree-label">
+        {{ item.name }}
+      </span>
+
     </mat-checkbox>
+
   </div>
 
-  @if (item?.open) {
-    <div>
-      @for (itemFilho of item?.children; track itemFilho) {
-        <div>
-          <ng-container *ngTemplateOutlet="itemTemplate; context{item: itemFilho}"></ng-container>
-        </div>
-      }
-    </div>
+  <!-- CHILDREN -->
+  @if (item.open && item.children?.length) {
+    @for (child of item.children; track child.id) {
+      <ng-container
+        [ngTemplateOutlet]="itemTemplate"
+        [ngTemplateOutletContext]="{ item: child }">
+      </ng-container>
+    }
   }
+
 </ng-template>
