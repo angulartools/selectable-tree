@@ -1,9 +1,9 @@
 {
   "name": "@angulartoolsdr/selectable-tree",
-  "version": "22.0.8",
+  "version": "22.1.0",
   "peerDependencies": {
-    "@angular/common": "22.0.8",
-    "@angular/core": "22.0.8"
+    "@angular/common": "22.1.0",
+    "@angular/core": "22.1.0"
   },
   "dependencies": {
     "tslib": "^2.8.1"
